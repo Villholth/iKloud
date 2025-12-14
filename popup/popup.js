@@ -267,8 +267,11 @@ async function saveConsent() {
 }
 
 function showDisclosure() {
-  $('link-privacy-policy').href = PRIVACY_POLICY_URL;
   openModal('modal-disclosure');
+}
+
+function openPrivacyPolicy() {
+  chrome.tabs.create({ url: PRIVACY_POLICY_URL });
 }
 
 async function acceptDisclosure() {
@@ -520,6 +523,10 @@ function init() {
 
   // Disclosure
   $('btn-accept-disclosure')?.addEventListener('click', acceptDisclosure);
+  $('link-privacy-policy')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openPrivacyPolicy();
+  });
 
   // Filter tabs
   document.querySelectorAll('.filter-tab').forEach(tab => {
