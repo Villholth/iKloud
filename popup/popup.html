@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>iKloud</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Loading -->
+    <div id="state-loading" class="state">
+      <div class="state-content">
+        <div class="loader"></div>
+        <p>Connecting to iCloud…</p>
+      </div>
+    </div>
+
+    <!-- Not Logged In -->
+    <div id="state-not-logged-in" class="state hidden">
+      <div class="state-content">
+        <div class="state-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h2>Sign in to iCloud</h2>
+        <p>You need to be signed in to iCloud.com to use this extension.</p>
+        <a href="https://www.icloud.com" target="_blank" class="btn btn-primary">Open iCloud.com</a>
+        <button id="btn-retry-auth" class="btn btn-ghost">Retry</button>
+      </div>
+    </div>
+
+    <!-- No iCloud+ -->
+    <div id="state-no-icloud" class="state hidden">
+      <div class="state-content">
+        <div class="state-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+          </svg>
+        </div>
+        <h2>iCloud+ Required</h2>
+        <p>Hide My Email requires an iCloud+ subscription.</p>
+        <a href="https://www.apple.com/icloud/" target="_blank" class="btn btn-primary">Learn More</a>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div id="state-main" class="state hidden">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-top">
+          <div class="brand">
+            <div class="brand-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="brand-text">
+              <span class="brand-name">iKloud</span>
+              <span class="brand-tagline">Hide My Email</span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button id="btn-select-mode" class="btn-icon" title="Select multiple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+            </button>
+            <button id="btn-settings" class="btn-icon" title="Settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="forward-info">
+          Forwarding to: <span id="forward-email" class="forward-email">—</span>
+        </div>
+      </header>
+
+      <!-- Search & Sort -->
+      <div class="toolbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="search" placeholder="Search aliases...">
+        </div>
+        <select id="sort" class="sort-select">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="az">A–Z</option>
+          <option value="za">Z–A</option>
+        </select>
+      </div>
+
+      <!-- Filter -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="active">Active</button>
+        <button class="filter-tab" data-filter="inactive">Inactive</button>
+      </div>
+
+      <!-- Bulk Bar -->
+      <div id="bulk-bar" class="bulk-bar hidden">
+        <div class="bulk-info">
+          <span id="bulk-count">0 selected</span>
+          <span>·</span>
+          <button id="btn-select-all" class="btn-link">Select all</button>
+        </div>
+        <div class="bulk-actions">
+          <button id="btn-bulk-deactivate" class="btn btn-sm btn-warning hidden">Deactivate</button>
+          <button id="btn-bulk-delete" class="btn btn-sm btn-danger hidden">Delete</button>
+          <button id="btn-cancel-select" class="btn btn-sm btn-secondary">Cancel</button>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div id="alias-list" class="alias-list"></div>
+
+      <!-- Empty -->
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <p>No aliases yet</p>
+        <span>Create your first alias below</span>
+      </div>
+
+      <!-- Error -->
+      <div id="error-banner" class="error-banner hidden">
+        <span id="error-msg">Error</span>
+        <button id="btn-retry" class="btn-link">Retry</button>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <button id="btn-create" class="btn btn-primary btn-create">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          New Alias
+        </button>
+      </footer>
+    </div>
+
+    <!-- Modal: Create -->
+    <div id="modal-create" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Create Alias</h3>
+          <button class="btn-close" data-close>&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="alias-display">
+            <code id="new-alias-hme">—</code>
+            <button id="btn-copy-new" class="btn-icon-sm" title="Copy">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+          </div>
+          <div class="field">
+            <label>Label</label>
+            <input type="text" id="new-label" placeholder="e.g. Netflix, Spotify">
+          </div>
+          <div class="field">
+            <label>Note <span class="optional">(optional)</span></label>
+            <textarea id="new-note" placeholder="Add a note..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-close>Cancel</button>
+          <button id="btn-save-new" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Edit -->
+    <div id="modal-edit" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Edit Alias</h3>
+          <button class="btn-close" data-close>&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-alias-id">
+          <div class="alias-display">
+            <code id="edit-alias-hme">—</code>
+          </div>
+          <div class="field">
+            <label>Label</label>
+            <input type="text" id="edit-label">
+          </div>
+          <div class="field">
+            <label>Note <span class="optional">(optional)</span></label>
+            <textarea id="edit-note"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-close>Cancel</button>
+          <button id="btn-save-edit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Delete (inactive only) -->
+    <div id="modal-delete" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog modal-sm">
+        <div class="modal-header">
+          <h3>Delete Alias</h3>
+          <button class="btn-close" data-close>&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="delete-alias-id">
+          <p>Delete <strong id="delete-alias-hme">—</strong>?</p>
+          <p class="text-warning">This cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-close>Cancel</button>
+          <button id="btn-confirm-delete" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Deactivate & Delete (active) -->
+    <div id="modal-deactivate-delete" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog modal-sm">
+        <div class="modal-header">
+          <h3>Deactivate & Delete</h3>
+          <button class="btn-close" data-close>&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="deactivate-delete-alias-id">
+          <p>This will deactivate and permanently delete <strong id="deactivate-delete-alias-hme">—</strong>.</p>
+          <p class="text-warning">This cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-close>Cancel</button>
+          <button id="btn-confirm-deactivate-delete" class="btn btn-danger">Deactivate & Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Bulk Action -->
+    <div id="modal-bulk" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog modal-sm">
+        <div class="modal-header">
+          <h3 id="bulk-modal-title">Confirm</h3>
+          <button class="btn-close" data-close>&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="bulk-modal-message">Are you sure?</p>
+          <p class="text-warning">This cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-close>Cancel</button>
+          <button id="btn-confirm-bulk" class="btn btn-danger">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Progress -->
+    <div id="modal-progress" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog modal-sm modal-progress">
+        <div class="modal-body">
+          <div class="loader"></div>
+          <p id="progress-text">Processing…</p>
+          <div class="progress-track"><div id="progress-fill" class="progress-bar"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Disclosure (first-time consent) -->
+    <div id="modal-disclosure" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog modal-disclosure">
+        <div class="modal-header">
+          <h3>Welcome to iKloud</h3>
+        </div>
+        <div class="modal-body">
+          <p class="disclosure-intro">This extension connects to your iCloud account to manage your Hide My Email aliases.</p>
+          
+          <div class="disclosure-section">
+            <strong>What we access:</strong>
+            <ul>
+              <li>Your Hide My Email aliases (email addresses, labels, notes)</li>
+              <li>Your forwarding email address</li>
+            </ul>
+          </div>
+          
+          <div class="disclosure-section">
+            <strong>How it works:</strong>
+            <ul>
+              <li>Data is fetched directly from Apple iCloud</li>
+              <li>No data is stored on external servers</li>
+              <li>All communication is encrypted (HTTPS)</li>
+            </ul>
+          </div>
+          
+          <p class="disclosure-consent">By clicking "I Understand & Continue", you agree to our <a href="#" id="link-privacy-policy" target="_blank">Privacy Policy</a>.</p>
+        </div>
+        <div class="modal-footer disclosure-footer">
+          <button id="btn-accept-disclosure" class="btn btn-primary btn-block">I Understand & Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

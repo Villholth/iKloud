@@ -1,0 +1,102 @@
+/* HME Button - Fixed position, doesn't modify input */
+.hme-autofill-btn {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  
+  background: #3B82F6 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  
+  cursor: pointer !important;
+  outline: none !important;
+  
+  /* Allow clicks to pass through to input except on the button itself */
+  pointer-events: auto !important;
+  
+  transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease !important;
+  
+  opacity: 0.9 !important;
+}
+
+.hme-autofill-btn:hover {
+  background: #2563EB !important;
+  opacity: 1 !important;
+  transform: scale(1.08) !important;
+}
+
+.hme-autofill-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* Icon */
+.hme-autofill-btn .hme-icon {
+  display: block !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: white !important;
+  stroke: white !important;
+  pointer-events: none !important;
+}
+
+/* Hidden states by default */
+.hme-autofill-btn .hme-spinner,
+.hme-autofill-btn .hme-check,
+.hme-autofill-btn .hme-error {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Loading state */
+.hme-autofill-btn.loading .hme-icon { display: none !important; }
+.hme-autofill-btn.loading .hme-spinner {
+  display: block !important;
+  width: 14px !important;
+  height: 14px !important;
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  border-top-color: white !important;
+  border-radius: 50% !important;
+  animation: hme-spin 0.7s linear infinite !important;
+}
+
+/* Success state */
+.hme-autofill-btn.success {
+  background: #22C55E !important;
+}
+.hme-autofill-btn.success .hme-icon { display: none !important; }
+.hme-autofill-btn.success .hme-check {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+}
+
+/* Error state */
+.hme-autofill-btn.error {
+  background: #EF4444 !important;
+}
+.hme-autofill-btn.error .hme-icon { display: none !important; }
+.hme-autofill-btn.error .hme-error {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+}
+
+@keyframes hme-spin {
+  to { transform: rotate(360deg); }
+}
